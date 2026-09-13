@@ -1,11 +1,16 @@
 import json
 import logging
+import openai
 from openai import OpenAI
 from src.schemas import ReplyGenerationResult
 from src.generation.prompts import REPLY_GENERATION_PROMPT
 from src.config import OPENAI_MODEL
 
 logger = logging.getLogger(__name__)
+
+class LLMGenerationError(Exception):
+    """Raised when reply generation encounters an unrecoverable API or schema error."""
+    pass
 
 class ReplyGenerator:
     def __init__(self, client: OpenAI = None):
@@ -45,10 +50,27 @@ class ReplyGenerator:
             result.evidence_ids = [eid for eid in result.evidence_ids if eid in valid_ids]
             return result
             
+        except (openai.AuthenticationError, openai.RateLimitError, openai.APIConnectionError, openai.APIStatusError) as e:
+            err_msg = str(e)
+            if "insufficient_quota" in err_msg or "credit_balance_exhausted" in err_msg or isinstance(e, openai.RateLimitError):
+                logger.error(f"OpenAI API Quota Exhausted during reply generation: {e}")
+                raise LLMGenerationError(
+                    "OpenAI API quota exhausted (RateLimitError: 429) during reply generation. "
+                    "Account has no remaining credits at https://platform.openai.com/settings/organization/billing."
+                ) from e
+            elif isinstance(e, openai.AuthenticationError):
+                logger.error(f"OpenAI Authentication Failed during reply generation: {e}")
+                raise LLMGenerationError(
+                    "OpenAI API authentication failed (401) during reply generation. Please check OPENAI_API_KEY in .env."
+                ) from e
+            else:
+                logger.error(f"OpenAI API Error during reply generation: {e}")
+                raise LLMGenerationError(f"Reply generation API call failed: {e}") from e
+
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON returned by generator: {e}")
+            raise LLMGenerationError(f"Reply generator returned malformed JSON: {e}") from e
+
         except Exception as e:
-            logger.error(f"Reply generation failed: {e}")
-            return ReplyGenerationResult(
-                reply="I'm sorry, I cannot assist with this right now. Please wait for an agent.",
-                grounded=False,
-                evidence_ids=[]
-            )
+            logger.error(f"Reply generation unexpected error: {e}")
+            raise LLMGenerationError(f"Reply generation failed: {e}") from e

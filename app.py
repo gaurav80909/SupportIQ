@@ -14,6 +14,8 @@ from src.config import (
     MIN_CLASSIFIER_CONFIDENCE,
     EMBEDDINGS_DIR,
 )
+from src.intents.classifier_llm import LLMClassifierError
+from src.generation.reply_generator import LLMGenerationError
 
 # --- Page Configuration ---
 st.set_page_config(
@@ -762,6 +764,40 @@ if analyze_button:
             try:
                 agent = load_support_agent(selected_brand)
                 response = agent.handle(query_text)
+            except (LLMClassifierError, LLMGenerationError) as e:
+                err_str = str(e)
+                is_quota = "quota" in err_str.lower() or "credit" in err_str.lower() or "429" in err_str
+                is_auth = "auth" in err_str.lower() or "401" in err_str
+                if is_quota:
+                    st.markdown("""
+                    <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 10px; padding: 18px 20px; margin-top: 14px; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #EF4444; font-size: 1.05rem; margin-bottom: 6px;">
+                            ⚠️ OpenAI API Quota Exhausted (RateLimitError: 429)
+                        </div>
+                        <div style="color: #CBD5E1; font-size: 0.88rem; line-height: 1.5;">
+                            The LLM classifier and reply generator could not complete because the configured OpenAI account has no remaining usage credits (<code>credit_balance_exhausted</code>).
+                        </div>
+                        <div style="color: #94A3B8; font-size: 0.82rem; margin-top: 8px;">
+                            <strong>Required Action:</strong> Please check your organization credits or billing at 
+                            <a href="https://platform.openai.com/settings/organization/billing" target="_blank" style="color: #38BDF8; text-decoration: underline;">platform.openai.com/settings/organization/billing</a>.<br>
+                            <em>Note: Local FAISS vector retrieval, dataset pipelines, and SentenceTransformers embeddings continue to operate normally offline.</em>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                elif is_auth:
+                    st.markdown("""
+                    <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 10px; padding: 18px 20px; margin-top: 14px; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #EF4444; font-size: 1.05rem; margin-bottom: 6px;">
+                            ⚠️ OpenAI API Authentication Failed (HTTP 401)
+                        </div>
+                        <div style="color: #CBD5E1; font-size: 0.88rem; line-height: 1.5;">
+                            The configured OpenAI API key is invalid or unauthorized. Please verify your credentials in <code>.env</code>.
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.error(f"LLM Pipeline Failure: {err_str}")
+                response = None
             except Exception as e:
                 st.error(f"Runtime error during pipeline execution: {e}")
                 response = None
