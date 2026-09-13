@@ -1,0 +1,15 @@
+{
+    "intents": [
+        "general_troubleshooting",
+        "software_update_os",
+        "keyboard_autocorrect_messaging",
+        "battery_power_performance",
+        "hardware_screen_audio_repair",
+        "itunes_apple_music_media",
+        "app_store_app_crashes",
+        "icloud_data_sync_backup",
+        "account_access_security",
+        "connectivity_network",
+        "billing_subscriptions_payments"
+    ]
+}

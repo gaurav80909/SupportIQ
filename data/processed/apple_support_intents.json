@@ -1,0 +1,129 @@
+{
+  "taxonomy_version": "1.0",
+  "dataset_source": "data/processed/AppleSupport_conversations.csv",
+  "total_messages_analyzed": 106645,
+  "num_intents": 11,
+  "intents": [
+    {
+      "intent": "general_troubleshooting",
+      "description": "General inquiries, product feedback, unclassified troubleshooting, or follow-ups not covered by specific categories.",
+      "approximate_message_count": 39003,
+      "percentage": 36.57,
+      "representative_examples": [
+        "@AppleSupport Tried resetting my settings .. restarting my phone .. all that",
+        "@AppleSupport I\ufe0f have an iPhone 7 Plus and yes I\ufe0f do",
+        "@AppleSupport I\ufe0f need answers because it\u2019s annoying \ud83d\ude43"
+      ]
+    },
+    {
+      "intent": "software_update_os",
+      "description": "System OS updates, installation errors, version bugs, and regressions immediately following an iOS, macOS, or watchOS update.",
+      "approximate_message_count": 28014,
+      "percentage": 26.27,
+      "representative_examples": [
+        "@AppleSupport The newest update. I\ufe0f made sure to download it yesterday.",
+        "Hey @AppleSupport and anyone else who upgraded to ios11.1, are y\u2019all having issues with capital \u201cI\ufe0f\u201d in the Mail app? As it puts in \u201cA\u201d?",
+        "@AppleSupport I have the iPhone 6s Plus and just did the most recent update."
+      ]
+    },
+    {
+      "intent": "keyboard_autocorrect_messaging",
+      "description": "Keyboard typing glitches (specifically the iOS 11 'I' to 'A [?]' autocorrect bug), predictive text errors, iMessage activation/delivery, and SMS issues.",
+      "approximate_message_count": 10757,
+      "percentage": 10.09,
+      "representative_examples": [
+        "Hello, internet. Can someone explain why this symbol keeps appearing on my phone and when I\ufe0f try to type the letter I\ufe0f? Also @AppleSupport",
+        "@AppleSupport tell me why I\ufe0f\u2019I\u2019ve updated my phone twice and I\ufe0f can\u2019t type letter I\ufe0f without getting a letter A and a question mark",
+        "@115858 creates amazing technology..... but talk to text still messes up 90% of what I will it to type..... #fixyourcrap"
+      ]
+    },
+    {
+      "intent": "battery_power_performance",
+      "description": "Rapid battery drain, device overheating, charging cable/port failures, unexpected shutdowns, freezing, lag, and slowness.",
+      "approximate_message_count": 7233,
+      "percentage": 6.78,
+      "representative_examples": [
+        "I just need @115858 to do something about the battery life because it sucks ass",
+        "@AppleSupport @116102 Battery life just got worst.",
+        "Question- @249 @115858 my iPhone6 dies very quick (have to charge it 3 times a day) my iPhone5 battery was faulty. Could this be the same?"
+      ]
+    },
+    {
+      "intent": "hardware_screen_audio_repair",
+      "description": "Physical damage (cracked screen/back glass), speaker/microphone failures, camera issues, physical buttons, Genius Bar appointments, and AppleCare warranty claims.",
+      "approximate_message_count": 5205,
+      "percentage": 4.88,
+      "representative_examples": [
+        "@AppleSupport I just get a white screen and nothing loads. After a short time, it just closes/crashes. Thanks for the reply.",
+        "@AppleSupport why can\u2019t I change ringer volume with the buttons? Whose dumb idea was it to change that and how do they still have a job?",
+        "@AppleSupport ...cost for sending in for diagnosing a problem if it's out of warranty?"
+      ]
+    },
+    {
+      "intent": "itunes_apple_music_media",
+      "description": "Apple Music streaming, playlist sync, missing song library, iTunes purchase/library sync on Mac/PC, and podcast/media playback issues.",
+      "approximate_message_count": 3601,
+      "percentage": 3.38,
+      "representative_examples": [
+        "@AppleSupport But this does not show the music stored on my phone like it did in os3. I do not want to store music on my phone.",
+        "@AppleSupport watchOs4 made my watch pointless Browsing music on my phone via the watch was 80% reason for buying it now it\u2019s useless.",
+        "And why is my music NEVER in my control center?! @AppleSupport"
+      ]
+    },
+    {
+      "intent": "app_store_app_crashes",
+      "description": "Third-party or built-in app crashes, apps failing to launch or closing unexpectedly, App Store download errors, and pending updates.",
+      "approximate_message_count": 2785,
+      "percentage": 2.61,
+      "representative_examples": [
+        "@AppleSupport Hi! What is going on? Has Youtube lost it? What can be done about it? Thanks for the support!",
+        "@AppleSupport I've also forced the app to close from the background and reopened, no dice \ud83c\udfb2",
+        "@AppleSupport no, my photos aren\u2019t gone. why are there four (five actually, one isn\u2019t pictured) albums in my photos all labeled twitter?"
+      ]
+    },
+    {
+      "intent": "icloud_data_sync_backup",
+      "description": "iCloud storage capacity warnings, photo syncing failures across devices, device backup and restore errors, and lost contacts/notes.",
+      "approximate_message_count": 2703,
+      "percentage": 2.53,
+      "representative_examples": [
+        "@115858 Just updated iOS on iPhone7, now iCloud backup greyed out, cannot be turned on, says \u201cLast Backup Never\u201d",
+        "@AppleSupport whenever I try to see the photos that I\u2019ve just taken my #iphone6 shows me this. I\u2019ve reset it, I\u2019ve restored it... help?",
+        "@AppleSupport I don\u2019t know. I need the space though. How do I get rid of some snapshots"
+      ]
+    },
+    {
+      "intent": "account_access_security",
+      "description": "Apple ID credentials, forgotten passwords/passcodes, locked or disabled accounts, two-factor authentication (2FA), and security or unauthorized access concerns.",
+      "approximate_message_count": 2593,
+      "percentage": 2.43,
+      "representative_examples": [
+        "@AppleSupport Hello, I need some help regarding the region change on my Apple ID",
+        "@AppleSupport how long does it take usually for account recovery to get back to you? It\u2019s been about a week now.",
+        "@AppleSupport My wife made the mistake of updating to 11. How can we revert back? Her password keeper app is now dead. She can't access her passwords."
+      ]
+    },
+    {
+      "intent": "connectivity_network",
+      "description": "Wi-Fi connection drops, Bluetooth pairing failures (AirPods, Apple Watch, car audio), cellular data / no service problems, Personal Hotspot, and AirDrop.",
+      "approximate_message_count": 2409,
+      "percentage": 2.26,
+      "representative_examples": [
+        "@AppleSupport still no reliable Bluetooth on my iPhone 8+.",
+        "Is anyone else having problems with there iPhone 7 saying no service? @115858 @115714",
+        "@AppleSupport The \u2018Overlapping url over TIME on Free WiFi hotspots\u2019 remains. v11.0.3. Not a WiFi problem; two different hotspots shown."
+      ]
+    },
+    {
+      "intent": "billing_subscriptions_payments",
+      "description": "Unexpected or duplicate credit card charges, App Store/iTunes payment receipts, subscription management (canceling subscriptions), refunds, and Apple Pay issues.",
+      "approximate_message_count": 2342,
+      "percentage": 2.2,
+      "representative_examples": [
+        "@AppleSupport I bought 2 iPhones X on Friday, but I don\u2019t see any charge on my credit card. Do I should worry or it\u2019s normal?",
+        "@AppleSupport Help!! I need to update the payment method for my iPhone X pre-order. It won\u2019t let me do it online",
+        "@115858 My Q was: How was the delivery date in the cart 2 wks earlier than what\u2019s on my receipt? #ServiceRecovery #SupplyChain #1standlastpreorder"
+      ]
+    }
+  ]
+}
