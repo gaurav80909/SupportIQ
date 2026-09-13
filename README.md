@@ -183,72 +183,138 @@ pip install -r requirements.txt
 ```
 
 ## Environment
-Copy `.env.example` to `.env` and set `OPENAI_API_KEY`.
+Copy `.env.example` to `.env` and set `OPENAI_API_KEY`:
+```bash
+cp .env.example .env
+```
 
-## Reproduction
+---
+
+## ⚡ Quick Reproduction Guide (< 15 Minutes)
+
+> [!IMPORTANT]
+> **The full 500 MB TWCS dataset is NOT required for reproduction.**
+> Reviewers can reproduce the entire end-to-end pipeline (subsampling, conversation dataset generation, FAISS vector indexing, and the interactive SaaS UI) in **under 2 minutes** using the deterministic 100,000-row subsample workflow.
+
+Run the following commands in sequence:
 
 ```bash
-# 1. Download data (requires kaggle CLI and credentials)
+# 1. Create a deterministic 100,000-row subsample with linked conversation turn pairs (~15s)
+python scripts/create_sample.py --sample-size 100000 --seed 42
+
+# 2. Extract brand conversation turn pairs from the subsample (~1s)
+# Note: --input automatically auto-resolves to data/raw/twcs_sample.csv if twcs.csv is absent
+python scripts/build_dataset.py --input data/raw/twcs_sample.csv --brand AppleSupport
+
+# 3. Build the FAISS vector retrieval index on the sample conversations (~25s)
+python scripts/build_embeddings.py --input data/processed/AppleSupport_conversations.csv
+
+# 4. Launch the professional SaaS dark-mode dashboard
+streamlit run app.py
+```
+
+### Subsample CLI Options
+- `scripts/create_sample.py`:
+  - `--input`: Path to raw TWCS CSV (default: `data/raw/twcs.csv`)
+  - `--output`: Destination path (default: `data/raw/twcs_sample.csv`)
+  - `--sample-size`: Number of rows to sample (default: `100000`)
+  - `--seed`: Random seed for strict reproducibility (default: `42`)
+  - `--uniform`: Perform pure uniform row sampling instead of conversation-pair preserving sampling
+
+- `scripts/build_dataset.py`:
+  - `--input`: Path to raw or subsampled CSV (auto-resolves `twcs_sample.csv` or `twcs.csv`)
+  - `--brand`: Brand handle to extract (e.g. `AppleSupport`, `AmazonHelp`)
+  - `--output`: Destination path for processed conversations CSV
+
+---
+
+## Full-Scale Reproduction (Optional)
+If you wish to process the complete 2.8-million-turn TWCS dataset:
+
+```bash
+# 1. Download full TWCS dataset (requires Kaggle API credentials)
 python scripts/download_data.py
 
-# 2. Build dataset and filter brand
-python scripts/build_dataset.py
+# 2. Build full conversation pairs for AppleSupport or AmazonHelp
+python scripts/build_dataset.py --brand AppleSupport
+python scripts/build_dataset.py --brand AmazonHelp --output data/processed/amazonhelp/AmazonHelp_conversations.csv
 
-# 3. Create golden template (requires manual labeling afterwards!)
-python scripts/create_golden_template.py
+# 3. Build full FAISS retrieval indexes
+python scripts/build_embeddings.py --input data/processed/AppleSupport_conversations.csv
+python scripts/build_embeddings.py --input data/processed/amazonhelp/AmazonHelp_conversations.csv --output_dir data/embeddings/amazonhelp
 
-# 4. Build FAISS embeddings
-python scripts/build_embeddings.py
-
-# 5. Run Evaluation pipeline
-python scripts/run_evaluation.py
+# 4. Run automated unit tests
+pytest -v
 ```
+
+---
 
 ## Testing
+Run the comprehensive unit test suite:
 ```bash
-pytest -q
+pytest -v
 ```
+All 15 tests cover deterministic sampling, dynamic dataset path resolution, brand isolation, baseline classifiers, TF-IDF, FAISS retrievers, and escalation policies.
 
-SupportIQ/🪄
+---
+
+## Project Structure
+
+```text
+SupportIQ/
 │
-├── app.py
-├── README.md
-├── requirements.txt
-├── .env.example
-├── decision_log.md
+├── app.py                     # Interactive SaaS-style dark mode dashboard
+├── README.md                  # Project overview and reproduction instructions
+├── requirements.txt           # Python dependencies
+├── .env.example               # Configuration and environment template
+├── decision_log.md            # Architectural and design decision records
 │
 ├── data/
-│   ├── raw/
-│   │   └── twcs.csv
-│   │
-│   ├── processed/
-│   │   └── AppleSupport_conversations.csv
-│   │
-│   ├── embeddings/
-│   │   ├── index.faiss
-│   │   └── metadata.*
-│   │
-│   └── golden/
-│       ├── golden_set.csv
-│       └── taxonomy.json
+│   ├── raw/                   # twcs.csv and twcs_sample.csv
+│   ├── processed/             # Cleaned conversation turn pairs
+│   ├── embeddings/            # FAISS vector indexes and metadata
+│   └── golden/                # Intent taxonomies and golden evaluation set
 │
 ├── src/
-│   ├── config.py
-│   ├── schemas.py
-│   ├── data/
-│   ├── intent/
-│   ├── retrieval/
-│   ├── generation/
-│   ├── evaluation/
-│   └── pipeline/
+│   ├── config.py              # Central path and threshold configurations
+│   ├── schemas.py             # Pydantic data models
+│   ├── data/                  # Loader, cleaner, conversation builder, sampler
+│   ├── intents/               # Intent classifiers and taxonomy loaders
+│   ├── retrieval/             # SentenceTransformers embedder & FAISS index
+│   ├── generation/            # RAG reply generator and prompts
+│   ├── escalation/            # Hybrid deterministic escalation policy
+│   ├── evaluation/            # Metrics, LLM judge, and human agreement
+│   └── pipeline/              # Multi-brand SupportAgent pipeline
 │
 ├── scripts/
-│   ├── build_dataset.py
-│   ├── build_embeddings.py
-│   ├── create_golden_template.py
-│   └── run_evaluation.py
+│   ├── create_sample.py       # Deterministic subsample generator (<15 min reproduction)
+│   ├── build_dataset.py       # Brand conversation extractor
+│   ├── build_embeddings.py    # FAISS vector indexing
+│   ├── create_golden_template.py # Golden evaluation set sampler
+│   ├── annotate_golden.py     # Streamlit manual annotation tool
+│   └── run_evaluation.py      # Automated benchmark runner
 │
 ├── reports/
-│   └── intent_taxonomy.md
+│   ├── intent_taxonomy.md     # AppleSupport 11-intent taxonomy analysis
+│   └── amazonhelp_intent_taxonomy.md # AmazonHelp 10-intent taxonomy analysis
 │
-└── tests/
+└── tests/                     # 15 automated pytest unit tests
+```
+
+---
+
+## Sources & Attributions
+
+SupportIQ utilizes standard industry frameworks and open-source models. All application logic, pipeline orchestration, prompt engineering, and UI components were developed natively for this project without copying external project code.
+
+Official source attributions:
+- **Twitter Customer Support (TWCS) Dataset**: Curated by ThoughtVector (Anurag Nagar) on Kaggle. Contains 2.8M customer support tweets and conversation turns from top enterprise brands.
+  - *Source:* [Kaggle Dataset: Customer Support on Twitter](https://www.kaggle.com/datasets/thoughtvector/customer-support-on-twitter)
+- **Sentence Transformers (`all-MiniLM-L6-v2`)**: Developed by Nils Reimers and Iryna Gurevych (UKPLab / Hugging Face). Used for 384-dimensional dense semantic text embeddings.
+  - *Source:* [Hugging Face Model Hub](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
+- **FAISS (Facebook AI Similarity Search)**: Developed by Meta AI Research (Johnson, Douze, Jégou, 2017). Used for high-efficiency vector similarity search and dense retrieval.
+  - *Source:* [Meta Research / GitHub FAISS](https://github.com/facebookresearch/faiss)
+- **OpenAI API (`gpt-4o-mini`)**: Developed by OpenAI. Used for structured JSON zero-shot intent classification and grounded RAG reply generation.
+  - *Source:* [OpenAI Platform](https://platform.openai.com/docs/models)
+- **Streamlit**: Open-source web application framework developed by Snowflake / Streamlit Inc. Used to power the interactive SaaS dashboard and golden-set annotation UI.
+  - *Source:* [Streamlit](https://streamlit.io/)
