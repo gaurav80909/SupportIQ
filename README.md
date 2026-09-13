@@ -3,6 +3,86 @@
 ## Problem
 This project implements the Hiver SDE Intern take-home assignment. The objective is to build an evaluation-first, production-quality AI customer support system capable of classifying incoming tweets, generating replies grounded in historical data (RAG), and safely escalating ambiguous or high-risk issues based on a hybrid policy. 
 
+
+# SupportIQ — AI Customer Support Agent
+
+> An AI-powered customer support agent that classifies customer issues, retrieves similar historical conversations, drafts grounded responses, and decides whether a request should be automatically handled or escalated.
+
+## 🚀 Overview
+
+SupportIQ is an AI customer-support system built for the Hiver SDE Intern Take-Home Assignment.
+
+The system uses the **Customer Support on Twitter (TWCS)** dataset to build a brand-specific support agent. For the current implementation, **@AppleSupport** is the selected production/demo brand.
+
+Given a new customer message, SupportIQ:
+
+1. Classifies the customer's issue into a data-driven support intent.
+2. Retrieves similar historical customer-support conversations.
+3. Generates a response grounded in those historical examples.
+4. Decides whether the request should be `AUTO_HANDLE` or `ESCALATE`.
+5. Provides the reasoning behind the escalation decision.
+
+The system is designed to be **reproducible, explainable, and evaluation-driven** rather than relying only on subjective LLM output.
+
+---
+
+## ✨ Key Features
+
+### Intent Classification
+Classifies incoming customer messages into **11 AppleSupport-specific intents** discovered from the dataset.
+
+### Historical Conversation Retrieval
+Uses semantic embeddings and **FAISS vector search** to retrieve relevant historical support conversations.
+
+### Grounded Reply Generation
+Generates a support reply using retrieved historical conversations as context.
+
+### Escalation Decision
+Routes each request to:
+
+- `AUTO_HANDLE`
+- `ESCALATE`
+
+with an explicit reason for escalation.
+
+### Interactive Demo
+A Streamlit interface allows reviewers to enter a customer message and inspect the complete AI pipeline.
+
+### Evaluation-First Design
+A separate **200-example golden evaluation set** is maintained for measuring system performance.
+
+---
+
+## 🏗️ Architecture
+
+```text
+                    Customer Message
+                           │
+                           ▼
+                ┌─────────────────────┐
+                │ Intent Classification│
+                └──────────┬──────────┘
+                           │
+                           ▼
+                ┌─────────────────────┐
+                │ Semantic Retrieval  │
+                │      FAISS          │
+                └──────────┬──────────┘
+                           │
+                           ▼
+                ┌─────────────────────┐
+                │ Reply Generation    │
+                │      LLM            │
+                └──────────┬──────────┘
+                           │
+                           ▼
+                ┌─────────────────────┐
+                │ Escalation Policy   │
+                └──────────┬──────────┘
+                           │
+                 ┌─────────┴─────────┐
+                 ▼                   ▼
+            AUTO_HANDLE           ESCALATE
 ## What Good Means
 For the selected brand (configured to `AppleSupport` by default), a "good" system must:
 1. **Intent Accuracy:** Accurately classify issues into a concise, brand-specific taxonomy.
@@ -128,3 +208,47 @@ python scripts/run_evaluation.py
 ```bash
 pytest -q
 ```
+
+SupportIQ/🪄
+│
+├── app.py
+├── README.md
+├── requirements.txt
+├── .env.example
+├── decision_log.md
+│
+├── data/
+│   ├── raw/
+│   │   └── twcs.csv
+│   │
+│   ├── processed/
+│   │   └── AppleSupport_conversations.csv
+│   │
+│   ├── embeddings/
+│   │   ├── index.faiss
+│   │   └── metadata.*
+│   │
+│   └── golden/
+│       ├── golden_set.csv
+│       └── taxonomy.json
+│
+├── src/
+│   ├── config.py
+│   ├── schemas.py
+│   ├── data/
+│   ├── intent/
+│   ├── retrieval/
+│   ├── generation/
+│   ├── evaluation/
+│   └── pipeline/
+│
+├── scripts/
+│   ├── build_dataset.py
+│   ├── build_embeddings.py
+│   ├── create_golden_template.py
+│   └── run_evaluation.py
+│
+├── reports/
+│   └── intent_taxonomy.md
+│
+└── tests/
