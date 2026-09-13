@@ -298,7 +298,7 @@ SupportIQ/
 │   ├── intent_taxonomy.md     # AppleSupport 11-intent taxonomy analysis
 │   └── amazonhelp_intent_taxonomy.md # AmazonHelp 10-intent taxonomy analysis
 │
-└── tests/                     # 15 automated pytest unit tests
+└── tests/                     # 21 automated pytest unit tests (including mock error handling)
 ```
 
 ---
